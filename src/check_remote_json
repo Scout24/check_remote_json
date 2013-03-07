@@ -1,0 +1,62 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use LWP::UserAgent;
+use HTTP::Headers;
+use JSON;
+
+my $URL;
+my $verbose = 0;
+
+for my $arg (@ARGV) {
+    # check for command line parameters
+    if ( $arg eq "-h" or $arg eq "--help" ) {
+        last;
+    } elsif ( $arg eq "-v" or $arg eq "--verbose" ) {
+        $verbose = 1;
+    } elsif ( $arg !~ m#://# ) {
+        print("Invalid arg '$arg'\n");
+        last;
+    } else {
+        $URL = $arg;
+    }
+}
+
+my $result = 2;    # default is critical to catch all unknown errors
+if ($URL) {
+    my $ua = new LWP::UserAgent(
+                                 default_headers => new HTTP::Headers( Accept => "application/json" ),
+                                 env_proxy       => 1,
+                                 timeout         => 30,
+                                 parse_head      => 0
+    );
+    my $response = $ua->get($URL);
+    if ( $response->is_success ) {
+        my $data;
+        my $content = $response->decoded_content;
+        eval { $data = decode_json($content); };
+        print( $content. "\n" ) if ($verbose);
+        if ($@) {
+            $@ =~ s# at [^ ]+ line \d+##;
+            print("JSON Deconding Error: $@");
+        } else {
+            if ( exists $data->{status} ) {
+                if ( my $status = $data->{status} eq "0" ) {
+                    $result = 0;                  # all OK
+                } else {
+                    print( exists $data->{message} ? $data->{message} . "\n" : "Status is $status, no message provided\n" );
+                }
+            } else {
+                print( "No status field in response:\n" . $content );
+            }
+        }
+    } else {
+        print( "Request to '$URL' failed: " . $response->status_line . "\n" );
+    }
+} else {
+    print("Usage: $0 [-v|--verbose] <URL>\n");
+    $result = 3;    #unknown
+}
+
+exit $result;
