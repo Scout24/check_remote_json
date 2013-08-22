@@ -29,7 +29,8 @@ if ($URL) {
                                  default_headers => new HTTP::Headers( Accept => "application/json" ),
                                  env_proxy       => 1,
                                  timeout         => 30,
-                                 parse_head      => 0
+                                 parse_head      => 0,
+                                 agent           => (split("/",__FILE__))[-1]."/__VERSION__" # basename of __FILE__, version should be patched in here
     );
     my $response = $ua->get($URL);
     if ( $response->is_success ) {
