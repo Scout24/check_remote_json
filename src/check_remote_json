@@ -37,17 +37,17 @@ if ($URL) {
         my $data;
         my $content = $response->decoded_content;
         eval { $data = decode_json($content); };
-        print( $content. "\n" ) if ($verbose);
+        print STDERR $content. "\n"  if ($verbose);
         if ($@) {
             $@ =~ s# at [^ ]+ line \d+##;
             print("JSON Deconding Error: $@");
         } else {
             if ( exists $data->{status} ) {
-                if ( my $status = $data->{status} eq "0" ) {
+                my $status = $data->{status};
+                if ( $status eq "0" ) {
                     $result = 0;                  # all OK
-                } else {
-                    print( exists $data->{message} ? $data->{message} . "\n" : "Status is $status, no message provided\n" );
                 }
+                print( exists $data->{message} ? $data->{message} . "\n" : "Status is $status, no message provided\n" );
             } else {
                 print( "No status field in response:\n" . $content );
             }
