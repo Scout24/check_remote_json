@@ -40,7 +40,7 @@ if ($URL) {
         print STDERR $content. "\n"  if ($verbose);
         if ($@) {
             $@ =~ s# at [^ ]+ line \d+##;
-            print("JSON Deconding Error: $@");
+            print("JSON Decoding Error: $@");
         } else {
             if ( exists $data->{status} ) {
                 my $status = $data->{status};
