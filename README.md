@@ -1,6 +1,8 @@
 Simple Nagios/Icinga check for remote query with JSON output
 ============================================================
 
+# This project is DEPRECATED and not any longer supported
+
 Did you every try to use check_http to check a web service that talks JSON? I did and it is no fun. This check queries a remote URL and expects JSON output with a status and message field, for example like this:
 ```json
 {
